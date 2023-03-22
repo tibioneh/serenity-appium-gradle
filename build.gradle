@@ -1,0 +1,62 @@
+plugins {
+    id "net.serenity-bdd.serenity-gradle-plugin" version "3.6.7"
+    id 'java'
+    id 'eclipse'
+    id 'idea'
+}
+
+repositories {
+    mavenCentral()
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+ext {
+//    slf4jVersion = '2.0.6'
+    serenityCoreVersion = '3.6.7'
+    junitVersion = '5.9.2'
+    assertJVersion = '3.24.2'
+    logbackVersion = '1.4.6'
+}
+
+dependencies {
+    testImplementation "net.serenity-bdd:serenity-core:${serenityCoreVersion}",
+            "net.serenity-bdd:serenity-junit5:${serenityCoreVersion}",
+            "net.serenity-bdd:serenity-screenplay:${serenityCoreVersion}",
+            "net.serenity-bdd:serenity-ensure:${serenityCoreVersion}",
+            "net.serenity-bdd:serenity-screenplay-webdriver:${serenityCoreVersion}",
+            "net.serenity-bdd:serenity-cucumber:${serenityCoreVersion}",
+            "org.junit.jupiter:junit-jupiter-api:${junitVersion}",
+            "org.assertj:assertj-core:${assertJVersion}",
+            "ch.qos.logback:logback-classic:${logbackVersion}"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+}
+
+gradle.startParameter.continueOnFailure = true
+
+serenity {
+    reports = ["single-page-html"]
+    // // Specify the root package of any JUnit acceptance tests
+    testRoot="starter"
+}
+
+test {
+    systemProperties System.properties
+    useJUnitPlatform(){
+//        includeTags 'alpha'
+//        excludeTags 'beta'
+    }
+    testLogging.showStandardStreams = true
+    systemProperties System.getProperties()
+    finalizedBy(aggregate)
+}
+
+// cannot pass tags from command line in Gradle, need to create separate tasks for each tag group
+task alpha(type: Test) {
+    systemProperties System.properties
+    useJUnitPlatform {
+        includeTags 'alpha'
+    }
+    finalizedBy(aggregate)
+}
